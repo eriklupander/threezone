@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Threezone</string>
+    <string name="title_activity_main">Threezone</string>
+    <string name="package_name">com.eriklupander.threezone</string>
+    <string name="custom_url_scheme">com.eriklupander.threezone</string>
+</resources>
