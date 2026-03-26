@@ -82,12 +82,15 @@ function App() {
                     setHasPlayedBeep(false);
                     playCountdownTick(true);
 
-                    // Save round data
-                    setRounds(prevRounds => [...prevRounds, {
-                        roundNumber: currentRound,
-                        duration: roundDuration,
-                        teams: teams.map(t => ({ ...t }))
-                    }]);
+                    // Save round data (guard against React calling updater twice)
+                    setRounds(prevRounds => {
+                        if (prevRounds.some(r => r.roundNumber === currentRound)) return prevRounds;
+                        return [...prevRounds, {
+                            roundNumber: currentRound,
+                            duration: roundDuration,
+                            teams: teams.map(t => ({ ...t }))
+                        }];
+                    });
 
                     return 0;
                 }
@@ -138,11 +141,14 @@ function App() {
     const handleEndRound = () => {
         setGameState('finished');
         setHasPlayedBeep(false);
-        setRounds(prevRounds => [...prevRounds, {
-            roundNumber: currentRound,
-            duration: roundDuration,
-            teams: teams.map(t => ({ ...t }))
-        }]);
+        setRounds(prevRounds => {
+            if (prevRounds.some(r => r.roundNumber === currentRound)) return prevRounds;
+            return [...prevRounds, {
+                roundNumber: currentRound,
+                duration: roundDuration,
+                teams: teams.map(t => ({ ...t }))
+            }];
+        });
     };
 
     const handlePauseResume = () => {

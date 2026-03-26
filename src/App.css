@@ -405,8 +405,60 @@ body {
         padding: 0.5rem;
     }
 
+    .app-header {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+
     .teams-grid {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .team-card {
+        padding: 0.5rem 1rem;
+    }
+
+    .team-color-indicator {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0.4rem;
+    }
+
+    .team-card h3 {
+        margin-bottom: 0.25rem;
+        font-size: 1rem;
+    }
+
+    .team-score {
+        font-size: 2rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .score-buttons {
+        gap: 0.5rem;
+    }
+
+    .score-button {
+        padding: 0.85rem;
+        font-size: 1.4rem;
+    }
+
+    .timer {
+        font-size: clamp(2rem, 8vw, 3rem);
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .round-actions {
+        gap: 0.5rem;
+    }
+
+    .pause-button,
+    .end-round-button {
+        padding: 0.75rem;
+        font-size: 1rem;
     }
 
     .color-palette {

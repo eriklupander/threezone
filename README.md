@@ -1,6 +1,8 @@
 # ThreeZone
 
-A mobile sports scoring app for three-team timed rounds, built with React + TypeScript and packaged for Android via Capacitor.
+A mobile sports scoring app for timed rounds supporting two or three teams. Built with React + TypeScript and packaged for Android via Capacitor.
+
+Also available at https://threezone.pages.dev (CloudFront pages)
 
 ![ThreeZone app screenshot](images/threezone.png)
 
@@ -33,6 +35,12 @@ npm install
 npm run dev
 ```
 
+### Create Cloudfront pages
+
+```
+npx wrangler pages project create threezone
+```
+
 ### Build and deploy to Android
 
 ```bash
@@ -42,3 +50,6 @@ cd android && ./gradlew assembleDebug
 ```
 
 The debug APK will be at `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+### Acknowledgements
+This application is co-authored by Claude Code.
