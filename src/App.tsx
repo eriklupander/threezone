@@ -11,12 +11,12 @@ const COLORS: TeamColor[] = [
     '#FFFFFF', '#000000'
 ];
 
+const makeTeams = (n: number): Team[] =>
+    Array.from({ length: n }, (_, i) => ({ id: i + 1, color: null, score: 0 }));
+
 function App() {
-    const [teams, setTeams] = useState<Team[]>([
-        { id: 1, color: null, score: 0 },
-        { id: 2, color: null, score: 0 },
-        { id: 3, color: null, score: 0 }
-    ]);
+    const [numTeams, setNumTeams] = useState<number>(3);
+    const [teams, setTeams] = useState<Team[]>(makeTeams(3));
 
     const [roundDuration, setRoundDuration] = useState<number>(60); // seconds
     const [gameState, setGameState] = useState<GameState>('setup');
@@ -47,6 +47,26 @@ function App() {
         oscillator.stop(audioContext.currentTime + 0.2);
     }, []);
 
+    // Play countdown tick at 3, 2, 1 (short high pitch) or final sound at 0 (longer, lower)
+    const playCountdownTick = useCallback((isFinal: boolean) => {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = isFinal ? 520 : 1050;
+        oscillator.type = 'sine';
+
+        const duration = isFinal ? 0.6 : 0.12;
+        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration);
+    }, []);
+
     // Timer countdown
     useEffect(() => {
         if (gameState !== 'playing') return;
@@ -60,6 +80,7 @@ function App() {
                     clearInterval(timer);
                     setGameState('finished');
                     setHasPlayedBeep(false);
+                    playCountdownTick(true);
 
                     // Save round data
                     setRounds(prevRounds => [...prevRounds, {
@@ -77,12 +98,17 @@ function App() {
                     setHasPlayedBeep(true);
                 }
 
+                // Countdown ticks at 3, 2, 1 (prev 4, 3, 2 → display 3, 2, 1)
+                if (prev >= 2 && prev <= 4) {
+                    playCountdownTick(false);
+                }
+
                 return prev - 1;
             });
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [gameState, currentRound, roundDuration, teams, hasPlayedBeep, playBeep]);
+    }, [gameState, currentRound, roundDuration, teams, hasPlayedBeep, playBeep, playCountdownTick]);
 
     const handleColorSelect = (teamId: number, color: TeamColor) => {
         setTeams(teams.map(team =>
@@ -105,7 +131,7 @@ function App() {
 
     const handleAddPoints = (teamId: number, points: number) => {
         setTeams(teams.map(team =>
-            team.id === teamId ? { ...team, score: team.score + points } : team
+            team.id === teamId ? { ...team, score: Math.max(0, team.score + points) } : team
         ));
     };
 
@@ -123,13 +149,14 @@ function App() {
         setGameState(prev => prev === 'playing' ? 'paused' : 'playing');
     };
 
+    const handleNumTeamsChange = (n: number) => {
+        setNumTeams(n);
+        setTeams(makeTeams(n));
+    };
+
     const handleEndGame = () => {
         // Reset everything
-        setTeams([
-            { id: 1, color: null, score: 0 },
-            { id: 2, color: null, score: 0 },
-            { id: 3, color: null, score: 0 }
-        ]);
+        setTeams(makeTeams(numTeams));
         setCurrentRound(1);
         setRounds([]);
         setGameState('setup');
@@ -154,6 +181,21 @@ function App() {
                 <div className="setup-container">
                     <h2>Setup Round {currentRound}</h2>
 
+                    <div className="team-count-selector">
+                        <h3>Teams</h3>
+                        <div className="team-count-options">
+                            {[2, 3].map(n => (
+                                <button
+                                    key={n}
+                                    className={`time-button${numTeams === n ? ' selected' : ''}`}
+                                    onClick={() => handleNumTeamsChange(n)}
+                                >
+                                    {n}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <TimeSelector
                         duration={roundDuration}
                         onDurationChange={setRoundDuration}
@@ -165,6 +207,7 @@ function App() {
                                 key={team.id}
                                 team={team}
                                 availableColors={COLORS}
+                                takenColors={teams.filter(t => t.id !== team.id && t.color !== null).map(t => t.color as TeamColor)}
                                 onColorSelect={handleColorSelect}
                             />
                         ))}

@@ -56,11 +56,13 @@ function GameBoard({
                                     points={1}
                                     color={team.color || '#333'}
                                     onClick={() => onAddPoints(team.id, 1)}
+                                    onLongPress={() => onAddPoints(team.id, -1)}
                                 />
                                 <ScoreButton
                                     points={2}
                                     color={team.color || '#333'}
                                     onClick={() => onAddPoints(team.id, 2)}
+                                    onLongPress={() => onAddPoints(team.id, -2)}
                                 />
                             </div>
                         )}
